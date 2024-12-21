@@ -7,11 +7,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface EmailMapper {
-    @Mapping(source = "cliente.id", target = "clienteId")
-    @Mapping(source = "categoria.id", target = "categoriaId")
+    @Mapping(target = "clienteId", source = "cliente.id")
+    @Mapping(target = "categoriaId", source = "categoria.id")
     EmailDTO toDTO(Email email);
 
-    @Mapping(source = "clienteId", target = "cliente.id")
-    @Mapping(source = "categoriaId", target = "categoria.id")
+    @Mapping(target = "cliente.id", source = "clienteId")
+    @Mapping(target = "categoria.id", source = "categoriaId")
     Email toEntity(EmailDTO emailDTO);
 }
