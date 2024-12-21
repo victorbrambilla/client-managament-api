@@ -2,16 +2,17 @@ package com.example.client_management.controller;
 
 import com.example.client_management.dto.ClienteDTO;
 import com.example.client_management.entity.Cliente;
+import com.example.client_management.enums.Status;
 import com.example.client_management.service.ClienteService;
 
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
@@ -24,9 +25,18 @@ public class ClienteController {
     }
 
     @GetMapping
-    public List<ClienteDTO> getAllClients() {
-        return clienteService.findAll();
+    public ResponseEntity<Page<ClienteDTO>> getAllClients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String inscricao,
+            @RequestParam(required = false) Status status) {
+        Page<ClienteDTO> clients = clienteService.findAllWithFilters(page, size, sortBy, sortDirection, name, inscricao, status);
+        return ResponseEntity.ok(clients);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ClienteDTO> getClientById(@PathVariable Long id) {
