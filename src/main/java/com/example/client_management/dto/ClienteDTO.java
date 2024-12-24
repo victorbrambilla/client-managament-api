@@ -28,4 +28,6 @@ public class ClienteDTO {
 
     @NotNull(message = "Status cannot be null")
     private Status status;
+
+    private String photoUrl;
 }

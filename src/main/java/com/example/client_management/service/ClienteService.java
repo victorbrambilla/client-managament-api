@@ -50,7 +50,9 @@ public class ClienteService {
         logger.info("Fetching client with ID: {}", id);
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente with ID " + id + " not found"));
-        return clienteMapper.toDTO(cliente);
+        ClienteDTO result =  clienteMapper.toDTO(cliente);
+        result.setPhotoUrl("https://avatar.iran.liara.run/public");
+        return result;
     }
 
     public ClienteDTO create(ClienteDTO clienteDTO) {
