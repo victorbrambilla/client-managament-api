@@ -10,4 +10,6 @@ public interface EmailRepository extends JpaRepository<Email, Long> {
 
     @Query("SELECT e FROM Email e JOIN FETCH e.categoria WHERE e.cliente.id = :clienteId")
     List<Email> findByClienteId(Long clienteId);
+
+    List<Email> findByCategoriaId(Long categoriaId);
 }

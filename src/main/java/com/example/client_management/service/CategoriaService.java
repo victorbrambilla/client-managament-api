@@ -1,6 +1,7 @@
 package com.example.client_management.service;
 
 import com.example.client_management.dto.CategoriaDTO;
+import com.example.client_management.dto.EmailDTO;
 import com.example.client_management.entity.Categoria;
 import com.example.client_management.exception.ResourceNotFoundException;
 import com.example.client_management.mapper.CategoriaMapper;
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.client_management.exception.EntityInUseException;
+
 @Service
 public class CategoriaService {
 
@@ -20,11 +23,13 @@ public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
     private final CategoriaMapper categoriaMapper;
+    private final EmailService emailService;
 
     @Autowired
-    public CategoriaService(CategoriaRepository categoriaRepository, CategoriaMapper CategoriaMapper) {
+    public CategoriaService(CategoriaRepository categoriaRepository, CategoriaMapper CategoriaMapper, EmailService emailService) {
         this.categoriaRepository = categoriaRepository;
         this.categoriaMapper = CategoriaMapper;
+        this.emailService = emailService;
     }
 
     public List<CategoriaDTO> findAll() {
@@ -54,6 +59,12 @@ public class CategoriaService {
         logger.info("Deleting category with ID: {}", id);
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() ->  new ResourceNotFoundException("Categoria with ID " + id + " not found"));
+
+        List<EmailDTO> emails = emailService.findByCategoriaId(id);
+        if (!emails.isEmpty()) {
+            logger.error("Cannot delete category with ID: {} because it has associated emails", id);
+            throw new EntityInUseException("Cannot delete category with ID: " + id + " because it has associated emails");
+        }
         categoriaRepository.delete(categoria);
         logger.info("Category with ID {} deleted successfully", id);
     }
@@ -66,5 +77,9 @@ public class CategoriaService {
         Categoria updatedCategoria = categoriaRepository.save(categoria);
         logger.info("Category updated successfully: {}", updatedCategoria);
         return categoriaMapper.toDTO(updatedCategoria);
+    }
+
+    public Categoria toEntity(CategoriaDTO categoriaDTO) {
+        return categoriaMapper.toEntity(categoriaDTO);
     }
 }

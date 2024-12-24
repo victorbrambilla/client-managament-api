@@ -1,11 +1,14 @@
 package com.example.client_management.service;
 
+import com.example.client_management.dto.CategoriaDTO;
 import com.example.client_management.dto.EmailDTO;
+import com.example.client_management.entity.Categoria;
 import com.example.client_management.entity.Email;
 import com.example.client_management.exception.ResourceNotFoundException;
 import com.example.client_management.mapper.EmailMapper;
 import com.example.client_management.repository.EmailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +21,13 @@ public class EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     private final EmailRepository emailRepository;
+    private final CategoriaService categoriaService;
     private final EmailMapper emailMapper;
     @Autowired
-    public EmailService(EmailRepository emailRepository, EmailMapper emailMapper) {
+    public EmailService(EmailRepository emailRepository, EmailMapper emailMapper, @Lazy CategoriaService categoriaService) {
         this.emailRepository = emailRepository;
         this.emailMapper = emailMapper;
+        this.categoriaService = categoriaService;
     }
 
     public List<EmailDTO> getAllEmailsByClientId(Long clienteId) {
@@ -40,6 +45,14 @@ public class EmailService {
         return emailMapper.toDTO(email);
     }
 
+    public List<EmailDTO> findByCategoriaId(Long categoriaId) {
+        logger.info("Fetching all emails for category with ID: {}", categoriaId);
+        return emailRepository.findByCategoriaId(categoriaId)
+                .stream()
+                .map(emailMapper::toDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public EmailDTO create(EmailDTO emailDTO) {
         logger.info("Creating new email: {}", emailDTO);
         Email email = emailMapper.toEntity(emailDTO);
@@ -52,7 +65,11 @@ public class EmailService {
         logger.info("Updating email with ID: {}", id);
         Email email = emailRepository.findById(id)
                 .orElseThrow(() ->  new ResourceNotFoundException("Email with ID " + id + " not found"));
+
+        CategoriaDTO categoria = categoriaService.findById(emailDTO.getCategoriaId());
+
         email.setEmail(emailDTO.getEmail());
+        email.setCategoria(categoriaService.toEntity(categoria));
         Email updatedEmail = emailRepository.save(email);
         logger.info("Email updated successfully: {}", updatedEmail);
         return emailMapper.toDTO(updatedEmail);
