@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EmailMapper {
     @Mapping(target = "clienteId", source = "cliente.id")
-    @Mapping(target = "categoriaId", source = "categoria.id")
+    @Mapping(target = "categoria", source = "categoria")
     EmailDTO toDTO(Email email);
 
     @Mapping(target = "cliente.id", source = "clienteId")

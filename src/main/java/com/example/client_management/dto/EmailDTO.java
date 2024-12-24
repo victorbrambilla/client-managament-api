@@ -21,4 +21,6 @@ public class EmailDTO {
 
     @NotNull(message = "Categoria ID cannot be null")
     private Long categoriaId;
+
+    private CategoriaDTO categoria;
 }
